@@ -2,23 +2,25 @@
 
 from selenium import webdriver
 import time
+import os
 from threading import Thread
 
 ACCOUNTS = {
     "username": "password"
 }
-chrome_driver = "D:\chromedriver.exe"   # Win32_76.0.3809.126
-
+# chrome_driver = "D:\chromedriver.exe"   # Win32_76.0.3809.126
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+DRIVER_BIN = os.path.join(PROJECT_ROOT, "bin/chromedriver")
 # Mate 20 X(5G)
-BUY_URL = 'https://www.vmall.com/product/10086533947561.html'
+BUY_URL = 'https://www.vmall.com/product/10086375798519.html'
 # 测试P30 Pro
 # BUY_URL = 'https://www.vmall.com/product/10086951150635.html'
 # 登录url
-LOGIN_URL = 'https://hwid1.vmall.com/CAS/portal/login.html?validated=true&themeName=red&service=https%3A%2F%2Fwww.vmall.com%2Faccount%2Facaslogin%3Furl%3Dhttps%253A%252F%252Fwww.vmall.com%252F&loginChannel=26000000&reqClientType=26&lang=zh-cn'
+LOGIN_URL = 'https://id1.cloud.huawei.com/CAS/portal/loginAuth.html?validated=true&themeName=red&service=https%3A%2F%2Fwww.vmall.com%2Faccount%2Fcaslogin%3Furl%3Dhttps%253A%252F%252Fwww.vmall.com%252F&loginChannel=26000000&reqClientType=26&lang=zh-cn'
 # 登录成功手动确认URL
 LOGIN_SUCCESS_CONFIRM = 'https://www.vmall.com/'
 # 开始自动刷新等待抢购按钮出现的时间点,提前3分钟
-BEGIN_GO = '2019-08-16 10:08:00'
+BEGIN_GO = '2020-11-37 11:24:00'
 
 
 # 进到购买页面后提交订单
@@ -102,21 +104,34 @@ def goToBuy(driver, user):
 
 # 登录商城,登陆成功后至商城首页然后跳转至抢购页面
 def loginMall(user, pwd):
-    driver = webdriver.Chrome(executable_path=chrome_driver)
+    # driver = webdriver.Chrome(executable_path=chrome_driver)
+    driver = webdriver.Chrome(DRIVER_BIN)
     driver.get(LOGIN_URL)
-    try:
-        time.sleep(5)  # 等待页面加载完成
-        account = driver.find_element_by_xpath('//*[@id="login_userName"]')
-        account.send_keys(user)
-        time.sleep(1)
-        password = driver.find_element_by_xpath('//*[@id="login_password"]')
-        password.send_keys(pwd)
-        print(user + '输入了账号密码，等待手动登录')
-    except:
-        print(user + '账号密码不能输入')
+    # try:
+    driver.implicitly_wait(5)
+    # time.sleep(5)  # 等待页面加载完成
+    coveraccount1 = driver.find_element_by_class_name('hwid-cover-input')
+    coveraccount1.click()
+    time.sleep(1)
+    account1 = driver.find_elements_by_xpath('//input[@type="text"]')[0]
+    print(account1)
+    print("Element is visible? " + str(account1.is_displayed()))
+    print('用户名输入框' + user + pwd)
+
+    password1 = driver.find_element_by_class_name('hwid-input-pwd')
+    print(password1)
+    print('密码输入框')
+    print("Element is visible? " + str(password1.is_displayed()))
+
+    account1.send_keys(user)
+    time.sleep(1)
+    password1.send_keys(pwd)
+    print(user + '输入了账号密码，等待手动登录')
+    # except:
+    #     print(user + '账号密码不能输入')
 
     while True:
-        time.sleep(3)
+        time.sleep(2)
         if LOGIN_SUCCESS_CONFIRM == driver.current_url:
             print(user + '登录成功！')
             break
