@@ -6,7 +6,7 @@ import os
 from threading import Thread
 
 ACCOUNTS = {
-    "username": "password"
+    "13501925770": "1qazxsw2"
 }
 # chrome_driver = "D:\chromedriver.exe"   # Win32_76.0.3809.126
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -20,7 +20,7 @@ LOGIN_URL = 'https://id1.cloud.huawei.com/CAS/portal/loginAuth.html?validated=tr
 # 登录成功手动确认URL
 LOGIN_SUCCESS_CONFIRM = 'https://www.vmall.com/'
 # 开始自动刷新等待抢购按钮出现的时间点,提前3分钟
-BEGIN_GO = '2020-11-37 11:24:00'
+BEGIN_GO = '2020-11-25 10:15:00'
 
 
 # 进到购买页面后提交订单
@@ -107,31 +107,32 @@ def loginMall(user, pwd):
     # driver = webdriver.Chrome(executable_path=chrome_driver)
     driver = webdriver.Chrome(DRIVER_BIN)
     driver.get(LOGIN_URL)
-    # try:
-    driver.implicitly_wait(5)
-    # time.sleep(5)  # 等待页面加载完成
-    coveraccount1 = driver.find_element_by_class_name('hwid-cover-input')
-    coveraccount1.click()
-    time.sleep(1)
-    account1 = driver.find_elements_by_xpath('//input[@type="text"]')[0]
-    print(account1)
-    print("Element is visible? " + str(account1.is_displayed()))
-    print('用户名输入框' + user + pwd)
+    try:
+        driver.implicitly_wait(5)
+        # time.sleep(5)  # 等待页面加载完成
+        coveraccount1 = driver.find_element_by_class_name('hwid-cover-input')
+        coveraccount1.click()
+        time.sleep(1)
+        account1 = driver.find_elements_by_xpath('//input[@type="text"]')[0]
+        print(account1)
+        print("Element is visible? " + str(account1.is_displayed()))
+        print('用户名输入框' + user + pwd)
 
-    password1 = driver.find_element_by_class_name('hwid-input-pwd')
-    print(password1)
-    print('密码输入框')
-    print("Element is visible? " + str(password1.is_displayed()))
+        password1 = driver.find_element_by_class_name('hwid-input-pwd')
+        print(password1)
+        print('密码输入框')
+        print("Element is visible? " + str(password1.is_displayed()))
 
-    account1.send_keys(user)
-    time.sleep(1)
-    password1.send_keys(pwd)
-    print(user + '输入了账号密码，等待手动登录')
-    # except:
-    #     print(user + '账号密码不能输入')
+        account1.send_keys(user)
+        time.sleep(1)
+        password1.send_keys(pwd)
+        print(user + '输入了账号密码，等待手动登录')
+    except:
+        print(user + '账号密码不能输入')
 
     while True:
-        time.sleep(2)
+        time.sleep(1)
+        print(driver.current_url)
         if LOGIN_SUCCESS_CONFIRM == driver.current_url:
             print(user + '登录成功！')
             break
