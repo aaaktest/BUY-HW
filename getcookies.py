@@ -2,7 +2,7 @@
 
 from selenium import webdriver
 import time
-import os, sys
+import os
 from threading import Thread
 import json
 
@@ -32,28 +32,23 @@ def loginMall(user, pwd):
         time.sleep(1)
         account1 = driver.find_elements_by_xpath('//input[@type="text"]')[0]
         password1 = driver.find_element_by_class_name('hwid-input-pwd')
-
         account1.send_keys(user)
         time.sleep(1)
         password1.send_keys(pwd)
         print(user + '输入了账号密码，等待手动登录')
     except:
         print(user + '账号密码不能输入')
-
     while True:
         time.sleep(1)
         print(driver.current_url)
         print(driver.current_url.find(LOGIN_SUCCESS_CONFIRM))
         if driver.current_url.find(LOGIN_SUCCESS_CONFIRM) >= 0:
             print(user + '登录成功！')
-            cookies = driver.get_cookies()
-            print(type(cookies))
-            print("".join(cookies))
-            f1 = os.open('cookie.txt', 'w')
-            os.write(f1, json.dumps(cookies))
-            os.close
-            break
-
+            with open('cookies.txt', 'w') as cookief:
+                # 将cookies保存为json格式
+                cookief.write(json.dumps(driver.get_cookies()))
+                print(user + 'cookies写入成功！')
+    driver.close()
 
 if __name__ == "__main__":
     # 账号密码

@@ -4,9 +4,10 @@ from selenium import webdriver
 import time
 import os
 from threading import Thread
+import json
 
 ACCOUNTS = {
-    "13501925770": "1qazxsw2"
+    "username": "password"
 }
 # chrome_driver = "D:\chromedriver.exe"   # Win32_76.0.3809.126
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -22,6 +23,9 @@ LOGIN_SUCCESS_CONFIRM = 'https://www.vmall.com/'
 # 开始自动刷新等待抢购按钮出现的时间点,提前3分钟
 BEGIN_GO = '2020-11-25 10:15:00'
 
+class OpenAccountLocators:
+    # 这里有一层隐藏div 有点坑哈
+    ACTIVE_BUTTON_JS = "document.getElementsByClassName('home-pop')[0].style.display='none'"
 
 # 进到购买页面后提交订单
 def submitOrder(driver, user):
@@ -107,35 +111,23 @@ def loginMall(user, pwd):
     # driver = webdriver.Chrome(executable_path=chrome_driver)
     driver = webdriver.Chrome(DRIVER_BIN)
     driver.get(LOGIN_URL)
-    try:
-        driver.implicitly_wait(5)
-        # time.sleep(5)  # 等待页面加载完成
-        coveraccount1 = driver.find_element_by_class_name('hwid-cover-input')
-        coveraccount1.click()
-        time.sleep(1)
-        account1 = driver.find_elements_by_xpath('//input[@type="text"]')[0]
-        print(account1)
-        print("Element is visible? " + str(account1.is_displayed()))
-        print('用户名输入框' + user + pwd)
+    # 首先清除由于浏览器打开已有的cookies
+    driver.delete_all_cookies()
 
-        password1 = driver.find_element_by_class_name('hwid-input-pwd')
-        print(password1)
-        print('密码输入框')
-        print("Element is visible? " + str(password1.is_displayed()))
+    with open('cookies.txt', 'r') as cookief:
+        # 使用json读取cookies 注意读取的是文件 所以用load而不是loads
+        cookieslist = json.load(cookief)
 
-        account1.send_keys(user)
-        time.sleep(1)
-        password1.send_keys(pwd)
-        print(user + '输入了账号密码，等待手动登录')
-    except:
-        print(user + '账号密码不能输入')
+        # 方法1 将expiry类型变为int
+        for cookie in cookieslist:
+            # 并不是所有cookie都含有expiry 所以要用dict的get方法来获取
+            if isinstance(cookie.get('expiry'), float):
+                cookie['expiry'] = int(cookie['expiry'])
+            driver.add_cookie(cookie)
 
-    while True:
-        time.sleep(1)
-        print(driver.current_url)
-        if LOGIN_SUCCESS_CONFIRM == driver.current_url:
-            print(user + '登录成功！')
-            break
+    # 刷新页面
+    driver.refresh()
+    driver.implicitly_wait(5)
     goToBuy(driver, user)
 
 
